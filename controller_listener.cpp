@@ -17,6 +17,7 @@ const std::string stateNames[] = {"STATE_INVALID", "STATE_START", "STATE_UPDATE"
 ControllerListener::ControllerListener(float swipeAngle, float screenTapAngle){
 	this->screenTapAngle = screenTapAngle;
 	this->swipeAngle = swipeAngle;
+	this->xdo = xdo_new(NULL);
 }
 
 /*
@@ -41,7 +42,6 @@ void ControllerListener::onFrame(const Controller &controller) {
 	for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); hl++) {
 		// Get gestures
 		const GestureList gestures = frame.gestures();
-		//if ( gestures.count() > 0){
 		for (int g = 0; g < gestures.count(); ++g) {
 			Gesture gesture = gestures[g];
 			switch (gesture.type()) {
@@ -56,21 +56,21 @@ void ControllerListener::onFrame(const Controller &controller) {
 					angleUp = toDegrees(angleUp);
 					angleDown = toDegrees(angleDown);
 
-					if(angleRight<=swipeAngle){
+					if(angleRight <= swipeAngle){
 						//std::cout <<" direction Right: " << swipe.direction()[0] << std::endl;
 						xdo_send_keysequence_window(xdo, CURRENTWINDOW, "ctrl+alt+Left", 0);
 						break;
-					}else if(angleLeft<=swipeAngle){
+					}else if(angleLeft <= swipeAngle){
 						//std::cout <<" direction left: " << swipe.direction()[0] << std::endl;
 						xdo_send_keysequence_window(xdo, CURRENTWINDOW, "ctrl+alt+Right", 0);
 						break;
 					}
 
-					if(angleUp<=swipeAngle){
+					if(angleUp <= swipeAngle){
 						//std::cout <<" direction Up: " << swipe.direction()[1] << std::endl;
 						xdo_send_keysequence_window(xdo, CURRENTWINDOW, "ctrl+alt+Down", 0);
 						break;
-					}else if(angleDown<=swipeAngle){
+					}else if(angleDown <= swipeAngle){
 						//std::cout <<" direction down: " << swipe.direction()[1] << std::endl;
 						xdo_send_keysequence_window(xdo, CURRENTWINDOW, "ctrl+alt+Up", 0);
 						break;
@@ -82,6 +82,7 @@ void ControllerListener::onFrame(const Controller &controller) {
 
 					float angle = screentap.direction().angleTo(Vector(0,0,1));
 					angle = toDegrees(angle);
+					std::cout << angle << std::endl;
 					if (angle <= screenTapAngle) {
 						xdo_send_keysequence_window(xdo, CURRENTWINDOW, "super+s", 0);
 					}
@@ -89,7 +90,7 @@ void ControllerListener::onFrame(const Controller &controller) {
 					break;
 				}
 				default:
-					std::cout << std::string(2, ' ')  << "Unknown gesture type." << std::endl;
+					std::cout << "Unknown gesture type." << std::endl;
 					break;
 			}
 		}

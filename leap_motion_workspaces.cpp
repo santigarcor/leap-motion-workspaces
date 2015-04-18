@@ -17,7 +17,7 @@ using std::endl;
 int main() {
 
 
-	ControllerListener listener(35.0f, 35.0f);
+	ControllerListener listener(45.0f, 45.0f);
 	Controller controller;
 
 	// Have the sample listener receive events from the controller

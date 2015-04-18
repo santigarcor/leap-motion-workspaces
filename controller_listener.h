@@ -24,7 +24,7 @@ public:
 	virtual void onFrame(const Controller &);
 	virtual void onDeviceChange(const Controller &);
 private:
-	xdo_t *xdo = xdo_new(NULL);
+	xdo_t *xdo;
 	float swipeAngle, screenTapAngle;
 	float toDegrees(float radians);
 };
