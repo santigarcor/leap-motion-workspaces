@@ -1,4 +1,4 @@
-# LeapSpaces
+# WorkspaceMotions
 
 This project is intended to use the LeapMotion to interact with Ubuntu workspaces and other things.
 
