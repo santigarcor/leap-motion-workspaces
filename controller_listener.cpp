@@ -6,6 +6,7 @@
  */
 
 #include "controller_listener.h"
+#include "wctype.h"
 
 #include "Leap.h"
 using namespace Leap;
@@ -18,6 +19,9 @@ ControllerListener::ControllerListener(float swipeAngle, float screenTapAngle){
 	this->screenTapAngle = screenTapAngle;
 	this->swipeAngle = swipeAngle;
 	this->xdo = xdo_new(NULL);
+	this->lastPosX = 0;
+	this->lastPosY = 0,
+	xdo_get_viewport_dimensions(xdo, &width,&height,0);
 }
 
 /*
@@ -40,6 +44,62 @@ void ControllerListener::onFrame(const Controller &controller) {
 
 	HandList hands = frame.hands();
 	for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); hl++) {
+		const Hand hand = *hl;
+		Vector v = hand.palmPosition();
+
+		if (v[0] < minX){
+			v.x = minX;
+		}
+		if (v[0] > maxX){
+			v.x = maxX;
+		}
+		if (v[1] < minY){
+			v.y = minY;
+		}
+		if (v[1] > maxY){
+			v.y = maxY;
+		}
+
+		int oldRangeX = maxX - minX;
+		int oldRangeY = maxY - minY;
+		int newRangeX = width - 0;
+		int newRangeY = height - 0;
+
+		int x = (((v[0] - minX) * newRangeX) / oldRangeX) + 0;
+		int y = (((v[1] - minY) * newRangeY) / oldRangeY) + 0;
+		xdo_move_mouse_relative(xdo, x - lastPosX, lastPosY - y);
+		lastPosX = x;
+		lastPosY = y;
+
+		FingerList fingers = hand.fingers();
+
+		for (FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++) {
+			Finger finger = *fl;
+			Vector direction = finger.direction();
+			float fingerAngleY = direction.angleTo(Vector(0,-1,0));
+			fingerAngleY = toDegrees(fingerAngleY);
+			switch (finger.type()) {
+				case Finger::TYPE_INDEX:
+					if (fingerAngleY <= 25) {
+						std::cout << "clic" << std::endl;
+						xdo_mouse_down(xdo, CURRENTWINDOW, 1);
+					} else {
+						xdo_mouse_up(xdo, CURRENTWINDOW, 1);
+					}
+					break;
+				case Finger::TYPE_MIDDLE:
+					if (fingerAngleY <= 25) {
+						std::cout << "rclic" << std::endl;
+						xdo_mouse_down(xdo, CURRENTWINDOW, 3);
+					} else {
+						xdo_mouse_up(xdo, CURRENTWINDOW, 3);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+
 		// Get gestures
 		const GestureList gestures = frame.gestures();
 		for (int g = 0; g < gestures.count(); ++g) {

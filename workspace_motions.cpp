@@ -16,8 +16,7 @@ using std::endl;
 
 int main() {
 
-
-	ControllerListener listener(45.0f, 45.0f);
+	ControllerListener listener(45.0f, 50.0f);
 	Controller controller;
 
 	// Have the sample listener receive events from the controller
@@ -26,13 +25,12 @@ int main() {
 	controller.setPolicy(Controller::POLICY_BACKGROUND_FRAMES);
 
 
-	// Keep this process running until Enter is pressed
+	//Run until Enter is pressed
 	std::cout << "Press Enter to quit..." << std::endl;
 	std::cin.get();
 
-	// Remove the sample listener when done
+	// Remove controller listener
 	controller.removeListener(listener);
 
-	//xdo_send_keysequence_window(xdo, CURRENTWINDOW, "ctrl+alt+Left", 0);
 	return 0;
 }

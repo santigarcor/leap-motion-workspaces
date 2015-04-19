@@ -26,7 +26,10 @@ public:
 private:
 	xdo_t *xdo;
 	float swipeAngle, screenTapAngle;
+	int lastPosX, lastPosY;
 	float toDegrees(float radians);
+	int minX = -90, maxX = 90, minY = 100, maxY = 250;
+	unsigned int width, height;
 };
 
 #endif /* CONTROLLER_LISTENER_H_ */
