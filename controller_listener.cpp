@@ -6,7 +6,6 @@
  */
 
 #include "controller_listener.h"
-#include "wctype.h"
 
 #include "Leap.h"
 using namespace Leap;
