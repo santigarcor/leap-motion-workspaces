@@ -44,7 +44,7 @@ void ControllerListener::onFrame(const Controller &controller) {
 	HandList hands = frame.hands();
 	for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); hl++) {
 		const Hand hand = *hl;
-		Vector v = hand.palmPosition();
+		Vector v = hand.stabilizedPalmPosition();
 
 		if (v[0] < minX){
 			v.x = minX;
@@ -72,6 +72,10 @@ void ControllerListener::onFrame(const Controller &controller) {
 
 		FingerList fingers = hand.fingers();
 
+		Vector indexD, middleD, thumbD;
+
+		bool index = false, middle = false, thumb = false;
+
 		for (FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++) {
 			Finger finger = *fl;
 			Vector direction = finger.direction();
@@ -79,24 +83,38 @@ void ControllerListener::onFrame(const Controller &controller) {
 			fingerAngleY = toDegrees(fingerAngleY);
 			switch (finger.type()) {
 				case Finger::TYPE_INDEX:
-					if (fingerAngleY <= 25) {
-						std::cout << "clic" << std::endl;
-						xdo_mouse_down(xdo, CURRENTWINDOW, 1);
-					} else {
-						xdo_mouse_up(xdo, CURRENTWINDOW, 1);
+					indexD = finger.tipPosition();
+					if (!finger.isExtended()){
+						index = true;
 					}
 					break;
 				case Finger::TYPE_MIDDLE:
-					if (fingerAngleY <= 25) {
-						std::cout << "rclic" << std::endl;
-						xdo_mouse_down(xdo, CURRENTWINDOW, 3);
-					} else {
-						xdo_mouse_up(xdo, CURRENTWINDOW, 3);
+					middleD = finger.tipPosition();
+					if (!finger.isExtended()){
+						middle = true;
+					}
+					break;
+				case Finger::TYPE_THUMB:
+					thumbD = finger.tipPosition();
+					if (!finger.isExtended()){
+						thumb = true;
 					}
 					break;
 				default:
 					break;
 			}
+		}
+
+		if (indexD.distanceTo(thumbD) <= 30){
+			xdo_mouse_down(xdo, CURRENTWINDOW, 1);
+		}else{
+			xdo_mouse_up(xdo, CURRENTWINDOW, 1);
+		}
+
+		if (indexD.distanceTo(thumbD) <= 30) {
+			xdo_mouse_down(xdo, CURRENTWINDOW, 3);
+		} else {
+			xdo_mouse_up(xdo, CURRENTWINDOW, 3);
 		}
 
 		// Get gestures
